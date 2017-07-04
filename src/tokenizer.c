@@ -12,7 +12,7 @@ static const char *floatsVals = "0123456789.";
 static const char *binaryVals = "01";
 static const char *hexVals = "0123456789abcdefABCDEF";
 static const char *identVals =
-    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ";
+    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ[]";
 
 static int tokenizer_data_len;
 static char *tokenizer_data = NULL;
@@ -28,6 +28,8 @@ static bool isEscape = false;
 int get_token_type(void) { return token_type; }
 
 int get_token_error(void) { return token_error; }
+
+int get_token_detail(void) { return token_detail; }
 
 const char *get_token_val(void) { return token_val; }
 

@@ -7,6 +7,8 @@ int get_token_type(void);
 
 int get_token_error(void);
 
+int get_token_detail(void);
+
 const char *get_token_val(void);
 
 void set_tokenizer_data(const char *data, int len);

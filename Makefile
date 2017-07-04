@@ -2,7 +2,7 @@ TARGET=interpreter
 
 CFLAGS=-std=c11 -I inc
 
-OBJS=src/tokenizer.o src/main.o
+OBJS=src/tokenizer.o src/parse_tree.o src/main.o
 
 .phony:all
 
