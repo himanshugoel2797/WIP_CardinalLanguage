@@ -8,6 +8,7 @@
 typedef enum {
   UNKNOWN,
   KEYWORD,
+  ASSIGNMENT,
   DELIMITER,
   CHAR,
   STRING,
@@ -44,7 +45,13 @@ typedef enum {
   LOR,
   LAND,
   LSHIFT,
-  RSHIFT
+  RSHIFT,
+  INC,
+  DEC,
+  ADD,
+  SUB,
+  MULT,
+  DIV,
 } Operators;
 
 typedef enum {
@@ -117,7 +124,8 @@ static char *keyword_strs[] = {
 static char *builtin_type_strs[] = {"int",   "uint",  "long",   "ulong", "byte",
                                     "sbyte", "short", "ushort", "float", NULL};
 
-static char *operator_strs[] = {">", "<", ">=", "<=", "==", "!=", "!", "&",
-                                "|", "^", "||", "&&", "<<", ">>", NULL};
+static char *operator_strs[] = {">",  "<",  ">=", "<=", "==", "!=", "!",
+                                "&",  "|",  "^",  "||", "&&", "<<", ">>",
+                                "++", "--", "+",  "-",  "*",  "/",  NULL};
 
 #endif

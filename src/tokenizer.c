@@ -11,6 +11,8 @@ static const char *integersVals = "0123456789";
 static const char *floatsVals = "0123456789.";
 static const char *binaryVals = "01";
 static const char *hexVals = "0123456789abcdefABCDEF";
+static const char *identVals =
+    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ";
 
 static int tokenizer_data_len;
 static char *tokenizer_data = NULL;
@@ -61,62 +63,81 @@ int next_token(void) {
     return 0;
   }
 
-  // Detect and remove whitespace
-  bool is_whitespace = false;
-  while (true) {
-    if (*token_pos == 0) {
-      token_error = NONE;
-      return token_type;
-    }
-
-    if (has_whitespace()) {
-      is_whitespace = true;
-      token_pos++;
-    } else
-      break;
-  }
-
-  // Parse and remove comments, treating them as whitespace
-  printf("%s ", token_pos);
-
-  /*if (!is_whitespace) {
-    // TODO: this is an error, there must be whitespace between tokens
-    printf("Whitespace missing between tokens");
-    exit(1);
-  }*/
-
   token_error = NONE;
 
-  if (*token_pos == ';') {
-    token_val[0] = ';';
-    token_pos++;
-    token_type = DELIMITER;
-    return DELIMITER;
-  }
-  if (*token_pos == '(') {
-    token_val[0] = '(';
-    token_pos++;
-    token_type = DELIMITER;
-    return DELIMITER;
-  }
-  if (*token_pos == ')') {
-    token_val[0] = ')';
-    token_pos++;
-    token_type = DELIMITER;
-    return DELIMITER;
-  }
+  // Detect and remove whitespace and comments
+  if (!inString) {
+    bool inLineComment = false;
+    bool inBlockComment = false;
+    while (true) {
+      if (*token_pos == 0) {
+        token_error = NONE;
+        return token_type;
+      }
 
-  if (*token_pos == '{') {
-    token_val[0] = '{';
-    token_pos++;
-    token_type = BLOCK;
-    return BLOCK;
-  }
-  if (*token_pos == '}') {
-    token_val[0] = '}';
-    token_pos++;
-    token_type = BLOCK;
-    return BLOCK;
+      if (inLineComment && !inBlockComment && *token_pos == '\n')
+        inLineComment = false;
+
+      if (inBlockComment && !inLineComment && *(token_pos - 1) == '*' &&
+          *token_pos == '/')
+        inBlockComment = false;
+
+      // Also Parse and remove comments, treating them as whitespace
+      if (!inLineComment && !inBlockComment && *token_pos == '/' &&
+          *(token_pos + 1) == '/') {
+        token_pos++;
+        inLineComment = true;
+      }
+
+      if (!inLineComment && !inBlockComment && *token_pos == '/' &&
+          *(token_pos + 1) == '*') {
+        token_pos++;
+        inBlockComment = true;
+      }
+
+      if (has_whitespace() | inLineComment | inBlockComment) {
+        token_pos++;
+      } else
+        break;
+    }
+
+    if (*token_pos == ';') {
+      token_val[0] = ';';
+      token_pos++;
+      token_type = DELIMITER;
+      return DELIMITER;
+    }
+    if (*token_pos == '(') {
+      token_val[0] = '(';
+      token_pos++;
+      token_type = DELIMITER;
+      return DELIMITER;
+    }
+    if (*token_pos == ')') {
+      token_val[0] = ')';
+      token_pos++;
+      token_type = DELIMITER;
+      return DELIMITER;
+    }
+    if (*token_pos == ',') {
+      token_val[0] = ',';
+      token_pos++;
+      token_type = DELIMITER;
+      return DELIMITER;
+    }
+
+    if (*token_pos == '{') {
+      token_val[0] = '{';
+      token_pos++;
+      token_type = BLOCK;
+      return BLOCK;
+    }
+    if (*token_pos == '}') {
+      token_val[0] = '}';
+      token_pos++;
+      token_type = BLOCK;
+      return BLOCK;
+    }
   }
 
   // Now check for tokens
@@ -152,21 +173,65 @@ int next_token(void) {
     return IDENTIFIER;
   }
 
+  if (*token_pos == '=' && !inString) {
+    token_val[0] = '=';
+    token_pos++;
+    token_type = ASSIGNMENT;
+    return ASSIGNMENT;
+  }
+
   token_error = INVALID_SEQUENCE;
   return UNKNOWN;
 }
 
 bool is_float(void) {
-  // TODO:
+  bool is_num = false;
+  for (int i = 0; i < TKN_MAX_LEN; i++) {
+    bool local_is_num = false;
+
+    for (int j = 0; j < strlen(floatsVals); j++)
+      if (floatsVals[j] == *token_pos) {
+        token_val[i] = *token_pos;
+        local_is_num = true;
+        is_num = true;
+        break;
+      }
+
+    if (local_is_num)
+      token_pos++;
+
+    if (!local_is_num)
+      return is_num;
+  }
   return false;
 }
 
 bool is_hex(void) {
   if (*token_pos == '0' && *(token_pos + 1) == 'x') {
-    // Read until non-hex character + 3 type characters
+    // Read until non-binary character + 3 type characters
     token_pos += 2;
+    bool is_num = false;
+    for (int i = 0; i < TKN_MAX_LEN; i++) {
+      bool local_is_num = false;
+
+      for (int j = 0; j < strlen(hexVals); j++)
+        if (hexVals[j] == *token_pos) {
+          token_val[i] = *token_pos;
+          local_is_num = true;
+          is_num = true;
+          break;
+        }
+      token_pos++;
+
+      if (!local_is_num)
+        return is_num;
+    }
+
+    // Token was too long
+    token_error = UNKNOWN;
     return true;
   }
+
   return false;
 }
 
@@ -174,13 +239,32 @@ bool is_binary(void) {
   if (*token_pos == '0' && *(token_pos + 1) == 'b') {
     // Read until non-binary character + 3 type characters
     token_pos += 2;
+    bool is_num = false;
+    for (int i = 0; i < TKN_MAX_LEN; i++) {
+      bool local_is_num = false;
+
+      for (int j = 0; j < strlen(binaryVals); j++)
+        if (binaryVals[j] == *token_pos) {
+          token_val[i] = *token_pos;
+          local_is_num = true;
+          is_num = true;
+          break;
+        }
+      token_pos++;
+
+      if (!local_is_num)
+        return is_num;
+    }
+
+    // Token was too long
+    token_error = UNKNOWN;
     return true;
   }
+
   return false;
 }
 
 bool is_integer(void) {
-  // TODO:
   bool is_num = false;
   for (int i = 0; i < TKN_MAX_LEN; i++) {
     bool local_is_num = false;
@@ -192,7 +276,9 @@ bool is_integer(void) {
         is_num = true;
         break;
       }
-    token_pos++;
+
+    if (local_is_num)
+      token_pos++;
 
     if (!local_is_num)
       return is_num;
@@ -263,7 +349,23 @@ bool is_string(void) {
 }
 
 bool is_identifier(void) {
-  // TODO:
+
+  bool isIdent = false;
+  for (int i = 0; i < TKN_MAX_LEN; i++) {
+
+    bool local_isIdent = false;
+    for (int j = 0; j < strlen(identVals); j++)
+      if (*token_pos == identVals[j]) {
+        token_val[i] = *token_pos;
+        isIdent = true;
+        local_isIdent = true;
+      }
+
+    if (!local_isIdent)
+      return isIdent;
+    token_pos++;
+  }
+
   return false;
 }
 
