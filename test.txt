@@ -1,7 +1,15 @@
 Create Node: (null)
 Create Node: import
-Create Node: System.Collections.Generic
-Append Child "System.Collections.Generic" to "import"
+Create Node: System
+Create Node: .
+Append Child "." to "System"
+Create Node: Collections
+Create Node: .
+Append Child "." to "Collections"
+Create Node: Generic
+Append Child "Generic" to "."
+Append Child "Collections" to "."
+Append Child "System" to "import"
 Create Node: ;
 Append Child "import" to ""
 Create Node: namespace

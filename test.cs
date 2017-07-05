@@ -14,7 +14,8 @@ namespace TestApp {
     }
 
     private struct TestAppStruct {
-
+        public int A;
+        public TestAppClass B;
     }
 
     private enum TestAppEnum {

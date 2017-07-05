@@ -52,6 +52,7 @@ typedef enum {
   SUB,
   MULT,
   DIV,
+  DOT,
   DEREF,
 } Operators;
 
@@ -138,6 +139,6 @@ static char *builtin_type_strs[] = {"int",   "uint",   "long",  "ulong",
 
 static char *operator_strs[] = {">", "<", ">=", "<=", "==", "!=", "!",  "&",
                                 "|", "^", "||", "&&", "<<", ">>", "++", "--",
-                                "+", "-", "*",  "/",  "->", NULL};
+                                "+", "-", "*",  "/",  ".",  "->", NULL};
 
 #endif

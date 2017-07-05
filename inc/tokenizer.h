@@ -15,6 +15,10 @@ void set_tokenizer_data(const char *data, int len);
 
 bool has_whitespace(void);
 
+int peek_token(void);
+
+int revert_peek_token(void);
+
 int next_token(void);
 
 bool is_float(void);

@@ -42,6 +42,21 @@ void append_child(node_t *parent, node_t *val) {
   cursor->next = val;
 }
 
+void append_next(node_t *parent, node_t *val) {
+
+  printf("Append Next \"%s\" to \"%s\"\r\n", val->token_val, parent->token_val);
+  if (parent->next == NULL) {
+    parent->next = val;
+    return;
+  }
+
+  node_t *cursor = parent->next;
+  while (cursor->next != NULL)
+    cursor = cursor->next;
+
+  cursor->next = val;
+}
+
 node_t *create_node(int type, int detail, const char *val) {
 
   printf("Create Node: %s\r\n", val);
@@ -74,15 +89,80 @@ node_t *parse_semicolon(void) {
     return NULL;
 }
 
+node_t *parse_dot(void) {
+  if (get_token_type() == DELIMITER && *get_token_val() == '.') {
+    return create_curtoken_node();
+  } else
+    return NULL;
+}
+
 node_t *parse_name(void) {
   if (get_token_type() == IDENTIFIER) {
     node_t *p = create_curtoken_node();
+
+    peek_token();
+    node_t *c = parse_dot();
+
+    if (c == NULL) {
+      revert_peek_token();
+    } else {
+      append_child(p, c);
+
+      revert_peek_token();
+      next_token();
+      next_token();
+
+      node_t *d = parse_name();
+      if (d != NULL)
+        append_child(c, d);
+    }
+
     return p;
   } else
     return NULL;
 }
 
 node_t *parse_variable_member(void) { return NULL; }
+
+node_t *parse_function_member(void) { return NULL; }
+
+node_t *parse_class_member(void) {
+  node_t *child = NULL;
+  node_t *modifier = NULL;
+  node_t *memType = NULL;
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  switch (get_token_detail()) {
+  case PUBLIC:
+  case PRIVATE:
+  case PROTECTED:
+  case INTERNAL:
+    modifier = create_curtoken_node();
+    next_token();
+    break;
+  default:
+    modifier = create_node(KEYWORD, PRIVATE, "private");
+    break;
+  }
+
+  if (get_token_type() == KEYWORD && get_token_detail() == STATIC) {
+    append_next(modifier, create_curtoken_node());
+    next_token();
+  }
+
+  if (get_token_type() == IDENTIFIER) {
+    // TODO: parse the identifier name
+    memType = parse_name();
+  } else if (get_token_type() == BUILTIN_TYPE) {
+    memType = create_curtoken_node();
+  }
+
+  // TODO: now get the member name and determine if we're looking at a property,
+  // variable or function
+
+  return child;
+}
 
 node_t *parse_enum_member(void) { return NULL; }
 
@@ -188,6 +268,12 @@ node_t *parse_class(void) {
       next_token();
 
       c = parse_variable_member();
+      if (c != NULL) {
+        append_child(p, c);
+        continue;
+      }
+
+      c = parse_function_member();
       if (c != NULL) {
         append_child(p, c);
         continue;

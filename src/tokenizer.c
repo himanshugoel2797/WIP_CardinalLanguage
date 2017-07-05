@@ -12,7 +12,7 @@ static const char *floatsVals = "0123456789.";
 static const char *binaryVals = "01";
 static const char *hexVals = "0123456789abcdefABCDEF";
 static const char *identVals =
-    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ[].";
+    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ[]";
 
 static int tokenizer_data_len;
 static char *tokenizer_data = NULL;
@@ -24,6 +24,17 @@ static int token_error;
 
 static bool inString = false;
 static bool isEscape = false;
+
+// Peek state storage
+static char *peek_token_pos;
+static char peek_token_val[TKN_MAX_LEN];
+static int peek_token_type;
+static int peek_token_detail;
+static int peek_token_error;
+
+static bool peek_inString = false;
+static bool peek_isEscape = false;
+static bool already_peeking = false;
 
 int get_token_type(void) { return token_type; }
 
@@ -55,6 +66,36 @@ bool check_whitespace(char c) {
 }
 
 bool has_whitespace(void) { return check_whitespace(*token_pos); }
+
+int peek_token(void) {
+  if (!already_peeking) {
+    peek_token_pos = token_pos;
+    peek_token_type = token_type;
+    peek_token_detail = token_detail;
+    peek_token_error = token_error;
+    peek_inString = inString;
+    peek_isEscape = isEscape;
+    strcpy(peek_token_val, token_val);
+    already_peeking = true;
+  }
+
+  return next_token();
+}
+
+int revert_peek_token(void) {
+  if (already_peeking) {
+    token_pos = peek_token_pos;
+    token_type = peek_token_type;
+    token_detail = peek_token_detail;
+    token_error = peek_token_error;
+    inString = peek_inString;
+    isEscape = peek_isEscape;
+    strcpy(token_val, peek_token_val);
+    already_peeking = false;
+  }
+
+  return token_type;
+}
 
 int next_token(void) {
   token_type = UNKNOWN;
