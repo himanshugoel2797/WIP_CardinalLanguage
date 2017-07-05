@@ -1,5 +1,6 @@
 #include "parse_tree.h"
 #include "tokenizer.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -108,8 +109,7 @@ node_t *parse_name(void) {
     } else {
       append_child(p, c);
 
-      revert_peek_token();
-      next_token();
+      apply_peek_token();
       next_token();
 
       node_t *d = parse_name();
@@ -122,6 +122,13 @@ node_t *parse_name(void) {
     return NULL;
 }
 
+node_t *parse_identifier(void) {
+  if (get_token_type() == IDENTIFIER) {
+    return create_curtoken_node();
+  }
+  return NULL;
+}
+
 node_t *parse_variable_member(void) { return NULL; }
 
 node_t *parse_function_member(void) { return NULL; }
@@ -130,36 +137,62 @@ node_t *parse_class_member(void) {
   node_t *child = NULL;
   node_t *modifier = NULL;
   node_t *memType = NULL;
-  if (get_token_type() != KEYWORD)
+  if (get_token_type() != KEYWORD && get_token_type() != BUILTIN_TYPE &&
+      get_token_type() != IDENTIFIER)
     return NULL;
 
-  switch (get_token_detail()) {
-  case PUBLIC:
-  case PRIVATE:
-  case PROTECTED:
-  case INTERNAL:
-    modifier = create_curtoken_node();
-    next_token();
-    break;
-  default:
+  if (get_token_type() == KEYWORD) {
+    switch (get_token_detail()) {
+    case PUBLIC:
+    case PRIVATE:
+    case PROTECTED:
+    case INTERNAL:
+      modifier = create_curtoken_node();
+      next_token();
+      break;
+    case STATIC:
+      modifier = create_node(KEYWORD, PRIVATE, "private");
+      append_next(modifier, create_curtoken_node());
+      next_token();
+      break;
+    default:
+      // TODO: syntax error, unexpected keyword
+      break;
+    }
+  } else {
     modifier = create_node(KEYWORD, PRIVATE, "private");
-    break;
   }
 
-  if (get_token_type() == KEYWORD && get_token_detail() == STATIC) {
-    append_next(modifier, create_curtoken_node());
-    next_token();
-  }
-
-  if (get_token_type() == IDENTIFIER) {
-    // TODO: parse the identifier name
+  if (get_token_type() == IDENTIFIER)
     memType = parse_name();
-  } else if (get_token_type() == BUILTIN_TYPE) {
+  else if (get_token_type() == BUILTIN_TYPE)
     memType = create_curtoken_node();
-  }
 
   // TODO: now get the member name and determine if we're looking at a property,
-  // variable or function
+  // variable or function, proceeding to the appropriate parser
+
+  next_token();
+
+  child = parse_identifier();
+
+  if (child == NULL) {
+    // syntax error, expected identifier
+    report_error(MISSING_IDENTIFIER);
+  }
+
+  append_modifier(child, modifier);
+  append_modifier(child, memType);
+
+  // variable declaration
+  peek_token();
+  node_t *s = parse_semicolon();
+  if (s != NULL) {
+    free(s);
+    apply_peek_token();
+    return child;
+  }
+
+  // TODO: function declaration
 
   return child;
 }
@@ -267,13 +300,20 @@ node_t *parse_class(void) {
 
       next_token();
 
-      c = parse_variable_member();
-      if (c != NULL) {
-        append_child(p, c);
-        continue;
-      }
+      /*
+            c = parse_variable_member();
+            if (c != NULL) {
+              append_child(p, c);
+              continue;
+            }
 
-      c = parse_function_member();
+            c = parse_function_member();
+            if (c != NULL) {
+              append_child(p, c);
+              continue;
+            }*/
+
+      c = parse_class_member();
       if (c != NULL) {
         append_child(p, c);
         continue;

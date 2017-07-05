@@ -97,6 +97,11 @@ int revert_peek_token(void) {
   return token_type;
 }
 
+int apply_peek_token(void) {
+  already_peeking = false;
+  return token_type;
+}
+
 int next_token(void) {
   token_type = UNKNOWN;
   memset(token_val, 0, TKN_MAX_LEN);

@@ -19,6 +19,8 @@ int peek_token(void);
 
 int revert_peek_token(void);
 
+int apply_peek_token(void);
+
 int next_token(void);
 
 bool is_float(void);

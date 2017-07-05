@@ -19,7 +19,12 @@ Create Node: public
 Create Node: class
 Create Node: TestAppClass
 Append Child "TestAppClass" to "class"
-Append Modifier "public" to "class"
-Append Child "class" to "namespace"
-Create Node: public
-Append Child "namespace" to ""
+Create Node: internal
+Create Node: bool
+Create Node: isValid
+Append Modifier "internal" to "isValid"
+Append Modifier "bool" to "isValid"
+Append Child "isValid" to "class"
+Create Node: private
+Create Node: get
+ERROR: 0
