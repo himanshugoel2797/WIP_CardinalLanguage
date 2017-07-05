@@ -192,30 +192,51 @@ int next_token(void) {
   if (is_keyword()) {
     token_type = KEYWORD;
     return KEYWORD;
+
   } else if (is_builtin_type()) {
-    token_type = KEYWORD;
+    token_type = BUILTIN_TYPE;
     return BUILTIN_TYPE;
+
+  } else if (is_visibility_mod()) {
+    token_type = VISIBILITY_MODIFIER;
+    return VISIBILITY_MODIFIER;
+
+  } else if (is_mod()) {
+    token_type = MODIFIER;
+    return MODIFIER;
+
+  } else if (is_creation()) {
+    token_type = CREATION;
+    return CREATION;
+
   } else if (is_operator()) {
-    token_type = DELIMITER;
-    return DELIMITER;
-  } else if (is_float()) {
-    token_type = FLOAT;
-    return FLOAT;
+    token_type = OPERATOR;
+    return OPERATOR;
+
   } else if (is_hex()) {
     token_type = HEX;
     return HEX;
+
   } else if (is_binary()) {
     token_type = BINARY;
     return BINARY;
+
   } else if (is_integer()) {
     token_type = INTEGER;
     return INTEGER;
+
+  } else if (is_float()) {
+    token_type = FLOAT;
+    return FLOAT;
+
   } else if (is_char()) {
     token_type = CHAR;
     return CHAR;
+
   } else if (is_string()) {
     token_type = STRING;
     return STRING;
+
   } else if (is_identifier()) {
     token_type = IDENTIFIER;
     return IDENTIFIER;
@@ -419,6 +440,66 @@ bool is_identifier(void) {
 
 bool is_keyword(void) {
   char **key = keyword_strs;
+  int i = 0;
+
+  while (*key != NULL) {
+    if (strncmp(*key, token_pos, strlen(*key)) == 0 &&
+        check_whitespace(*(token_pos + strlen(*key)))) {
+      strcpy(token_val, *key);
+      token_detail = i;
+      token_pos += strlen(*key);
+      return true;
+    }
+
+    i++;
+    key++;
+  }
+
+  return false;
+}
+
+bool is_visibility_mod(void) {
+  char **key = visibility_modifier_strs;
+  int i = 0;
+
+  while (*key != NULL) {
+    if (strncmp(*key, token_pos, strlen(*key)) == 0 &&
+        check_whitespace(*(token_pos + strlen(*key)))) {
+      strcpy(token_val, *key);
+      token_detail = i;
+      token_pos += strlen(*key);
+      return true;
+    }
+
+    i++;
+    key++;
+  }
+
+  return false;
+}
+
+bool is_mod(void) {
+  char **key = modifier_strs;
+  int i = 0;
+
+  while (*key != NULL) {
+    if (strncmp(*key, token_pos, strlen(*key)) == 0 &&
+        check_whitespace(*(token_pos + strlen(*key)))) {
+      strcpy(token_val, *key);
+      token_detail = i;
+      token_pos += strlen(*key);
+      return true;
+    }
+
+    i++;
+    key++;
+  }
+
+  return false;
+}
+
+bool is_creation(void) {
+  char **key = creation_strs;
   int i = 0;
 
   while (*key != NULL) {

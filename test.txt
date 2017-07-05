@@ -15,16 +15,13 @@ Append Child "import" to ""
 Create Node: namespace
 Create Node: TestApp
 Append Child "TestApp" to "namespace"
-Create Node: public
-Create Node: class
-Create Node: TestAppClass
-Append Child "TestAppClass" to "class"
 Create Node: internal
+Create Node: var
 Create Node: bool
 Create Node: isValid
-Append Modifier "internal" to "isValid"
+Append Modifier "var" to "isValid"
 Append Modifier "bool" to "isValid"
-Append Child "isValid" to "class"
-Create Node: private
-Create Node: get
-ERROR: 0
+WARNING: Property support has not been implemented yet.
+Append Modifier "internal" to "isValid"
+Append Child "isValid" to "namespace"
+ERROR: 4

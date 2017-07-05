@@ -10,6 +10,7 @@ typedef enum {
   KEYWORD,
   ASSIGNMENT,
   DELIMITER,
+  OPERATOR,
   CHAR,
   STRING,
   IDENTIFIER,
@@ -19,6 +20,9 @@ typedef enum {
   BINARY,
   BUILTIN_TYPE,
   BLOCK,
+  VISIBILITY_MODIFIER,
+  MODIFIER,
+  CREATION,
 } TokenTypes;
 
 typedef enum {
@@ -68,53 +72,48 @@ typedef enum {
   FLOAT32,
   FLOAT64,
   VOID,
+  BOOL,
 } Types;
 
 typedef enum {
-  CLASS,
-  NAMESPACE,
-  USING,
-  STATIC,
   PUBLIC,
   PRIVATE,
-  PROTECTED,
-  INTERFACE,
+  INTERNAL,
+} VisibilityModifiers;
+
+typedef enum {
+  ATOMIC,
+  PTR,
+  VOLATILE,
+  CONST,
+} Modifiers;
+
+typedef enum {
+  NAMESPACE,
+  FUNC,
+  DELEGATE,
+  STRUCT,
+  ENUM,
+  TYPEDEF,
+  VAR,
+} Creations;
+
+typedef enum {
   IF,
   ELSE,
   WHILE,
   DO,
   CASE,
-  ENUM,
-  STRUCT,
-  CONST,
   BREAK,
   CONTINUE,
   RETURN,
   SIZEOF,
   NAMEOF,
-  TYPEOF,
-  VOLATILE,
   SWITCH,
-  INTERNAL,
-  THIS,
-  IMPLICIT,
-  OPERATOR,
-  EXPLICIT,
-  REF,
-  IN,
-  OUT,
-  LOCK,
-  TRY,
-  CATCH,
-  FINALLY,
-  NEW,
   GET,
   SET,
   PARAMS,
-  DELEGATE,
-  ABSTRACT,
   ADDROF,
-  PTR,
   VAL_AT,
   NULL_VAL,
   IMPORT,
@@ -122,20 +121,22 @@ typedef enum {
   FALSE_VAL,
 } Keywords;
 
-static char *keyword_strs[] = {
-    "class",     "namespace", "using",    "static",   "public",   "private",
-    "protected", "interface", "if",       "else",     "while",    "do",
-    "case",      "enum",      "struct",   "const",    "break",    "continue",
-    "return",    "sizeof",    "nameof",   "typeof",   "volatile", "switch",
-    "internal",  "this",      "implicit", "operator", "explicit", "ref",
-    "in",        "out",       "lock",     "try",      "catch",    "finally",
-    "new",       "get",       "set",      "params",   "delegate", "abstract",
-    "addrof",    "ptr",       "val_at",   "null",     "import",   "true",
-    "false",     NULL};
+static char *visibility_modifier_strs[] = {"public", "private", "internal",
+                                           NULL};
 
-static char *builtin_type_strs[] = {"int",   "uint",   "long",  "ulong",
-                                    "byte",  "sbyte",  "short", "ushort",
-                                    "float", "double", "void",  NULL};
+static char *modifier_strs[] = {"atomic", "ptr", "volatile", "const", NULL};
+
+static char *creation_strs[] = {"namespace", "func",    "delegate", "struct",
+                                "enum",      "typedef", "var",      NULL};
+
+static char *keyword_strs[] = {
+    "if",     "else",   "while",  "do",     "case", "break", "continue",
+    "return", "sizeof", "nameof", "switch", "get",  "set",   "params",
+    "addrof", "val_at", "null",   "import", "true", "false", NULL};
+
+static char *builtin_type_strs[] = {
+    "int",    "uint",  "long",   "ulong", "byte", "sbyte", "short",
+    "ushort", "float", "double", "void",  "bool", NULL};
 
 static char *operator_strs[] = {">", "<", ">=", "<=", "==", "!=", "!",  "&",
                                 "|", "^", "||", "&&", "<<", ">>", "++", "--",

@@ -1,21 +1,15 @@
 import System.Collections.Generic;
 
 namespace TestApp {
-    public class TestAppClass {
-        internal bool isValid { get;set;}
-
-        public TestAppClass(){
-            isValid = true;
-        }
-
-        public bool IsValid {
-            return isValid;
-        }
-    }
+    internal var bool isValid { get;set;}
 
     private struct TestAppStruct {
-        public int A;
-        public TestAppClass B;
+        public var int A;
+        public ptr var int B;
+    }
+
+    public func X(a int, b float) bool {
+        return a >= b;
     }
 
     private enum TestAppEnum {

@@ -11,6 +11,8 @@ void report_error(int code) {
   exit(0);
 }
 
+void report_warning(char *msg) { printf("WARNING: %s\r\n", msg); }
+
 void append_modifier(node_t *parent, node_t *val) {
 
   printf("Append Modifier \"%s\" to \"%s\"\r\n", val->token_val,
@@ -91,7 +93,7 @@ node_t *parse_semicolon(void) {
 }
 
 node_t *parse_dot(void) {
-  if (get_token_type() == DELIMITER && *get_token_val() == '.') {
+  if (get_token_type() == OPERATOR && *get_token_val() == '.') {
     return create_curtoken_node();
   } else
     return NULL;
@@ -129,253 +131,110 @@ node_t *parse_identifier(void) {
   return NULL;
 }
 
-node_t *parse_variable_member(void) { return NULL; }
-
-node_t *parse_function_member(void) { return NULL; }
-
-node_t *parse_class_member(void) {
-  node_t *child = NULL;
-  node_t *modifier = NULL;
-  node_t *memType = NULL;
-  if (get_token_type() != KEYWORD && get_token_type() != BUILTIN_TYPE &&
-      get_token_type() != IDENTIFIER)
+node_t *parse_func(void) {
+  if (get_token_type() != CREATION | get_token_detail() != FUNC)
     return NULL;
-
-  if (get_token_type() == KEYWORD) {
-    switch (get_token_detail()) {
-    case PUBLIC:
-    case PRIVATE:
-    case PROTECTED:
-    case INTERNAL:
-      modifier = create_curtoken_node();
-      next_token();
-      break;
-    case STATIC:
-      modifier = create_node(KEYWORD, PRIVATE, "private");
-      append_next(modifier, create_curtoken_node());
-      next_token();
-      break;
-    default:
-      // TODO: syntax error, unexpected keyword
-      break;
-    }
-  } else {
-    modifier = create_node(KEYWORD, PRIVATE, "private");
-  }
-
-  if (get_token_type() == IDENTIFIER)
-    memType = parse_name();
-  else if (get_token_type() == BUILTIN_TYPE)
-    memType = create_curtoken_node();
-
-  // TODO: now get the member name and determine if we're looking at a property,
-  // variable or function, proceeding to the appropriate parser
-
-  next_token();
-
-  child = parse_identifier();
-
-  if (child == NULL) {
-    // syntax error, expected identifier
-    report_error(MISSING_IDENTIFIER);
-  }
-
-  append_modifier(child, modifier);
-  append_modifier(child, memType);
-
-  // variable declaration
-  peek_token();
-  node_t *s = parse_semicolon();
-  if (s != NULL) {
-    free(s);
-    apply_peek_token();
-    return child;
-  }
-
-  // TODO: function declaration
-
-  return child;
 }
 
-node_t *parse_enum_member(void) { return NULL; }
-
-node_t *parse_enum(void) {
-  if (get_token_type() == KEYWORD && get_token_detail() == ENUM) {
-    node_t *p = create_curtoken_node();
-    next_token();
-
-    node_t *c = parse_name();
-    if (c == NULL) {
-      // syntax error, missing identifier
-      report_error(MISSING_IDENTIFIER);
-    }
-
-    append_child(p, c);
-    next_token();
-    if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // syntax error, expected '{'
-      report_error(EXPECTED_OPENING_BRACE);
-    }
-
-    // Add members
-    while (true) {
-      node_t *c = NULL;
-
-      next_token();
-
-      c = parse_enum_member();
-      if (c != NULL) {
-        append_child(p, c);
-        continue;
-      }
-
-      if (get_token_type() == BLOCK && *get_token_val() == '}')
-        return p;
-    }
-    return p;
-  } else
+node_t *parse_delegate(void) {
+  if (get_token_type() != CREATION | get_token_detail() != DELEGATE)
     return NULL;
 }
 
 node_t *parse_struct(void) {
-  if (get_token_type() == KEYWORD && get_token_detail() == STRUCT) {
-    node_t *p = create_curtoken_node();
-    next_token();
-
-    node_t *c = parse_name();
-    if (c == NULL) {
-      // syntax error, missing identifier
-      report_error(MISSING_IDENTIFIER);
-    }
-
-    append_child(p, c);
-    next_token();
-    if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // syntax error, expected '{'
-      report_error(EXPECTED_OPENING_BRACE);
-    }
-
-    // Add members
-    while (true) {
-      node_t *c = NULL;
-
-      next_token();
-
-      c = parse_variable_member();
-      if (c != NULL) {
-        append_child(p, c);
-        continue;
-      }
-
-      if (get_token_type() == BLOCK && *get_token_val() == '}')
-        return p;
-    }
-
-    return p;
-  } else
+  if (get_token_type() != CREATION | get_token_detail() != STRUCT)
     return NULL;
 }
 
-node_t *parse_class(void) {
-  if (get_token_type() == KEYWORD && get_token_detail() == CLASS) {
-    node_t *p = create_curtoken_node();
-    next_token();
-
-    node_t *c = parse_name();
-    if (c == NULL) {
-      // syntax error, missing identifier
-      report_error(MISSING_IDENTIFIER);
-    }
-
-    append_child(p, c);
-    next_token();
-    if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // syntax error, expected '{'
-      report_error(EXPECTED_OPENING_BRACE);
-    }
-
-    // Add members
-    while (true) {
-      node_t *c = NULL;
-
-      next_token();
-
-      /*
-            c = parse_variable_member();
-            if (c != NULL) {
-              append_child(p, c);
-              continue;
-            }
-
-            c = parse_function_member();
-            if (c != NULL) {
-              append_child(p, c);
-              continue;
-            }*/
-
-      c = parse_class_member();
-      if (c != NULL) {
-        append_child(p, c);
-        continue;
-      }
-
-      if (get_token_type() == BLOCK && *get_token_val() == '}')
-        return p;
-    }
-
-    return p;
-  } else
+node_t *parse_enum(void) {
+  if (get_token_type() != CREATION | get_token_detail() != ENUM)
     return NULL;
 }
 
-node_t *parse_typeDeclaration(void) {
-  node_t *child = NULL;
-  node_t *modifier = NULL;
-  if (get_token_type() == KEYWORD) {
-    switch (get_token_detail()) {
-    case PUBLIC:
-    case PRIVATE:
-    case PROTECTED:
-    case INTERNAL:
-      modifier = create_curtoken_node();
-      next_token();
-      break;
-    case CLASS:
-    case STRUCT:
-    case ENUM:
-      modifier = create_node(KEYWORD, PRIVATE, "private");
-      break;
-    default:
-      return NULL;
-      break;
-    }
-  } else
+node_t *parse_typedef(void) {
+  if (get_token_type() != CREATION | get_token_detail() != TYPEDEF)
+    return NULL;
+}
+
+node_t *parse_var(void) {
+  if (get_token_type() != CREATION | get_token_detail() != VAR)
     return NULL;
 
-  child = parse_enum();
-  if (child != NULL) {
-    append_modifier(child, modifier);
-    return child;
+  node_t *isVar = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
+    report_error(EXPECTED_TYPE);
+
+  node_t *type = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *ident = create_curtoken_node();
+  append_modifier(ident, isVar);
+  append_modifier(ident, type);
+
+  next_token();
+  node_t *semi = parse_semicolon();
+  if (semi != NULL) {
+    free(semi);
+    return ident; // Just a variable declaration.
   }
 
-  child = parse_struct();
-  if (child != NULL) {
-    append_modifier(child, modifier);
-    return child;
+  // TODO: implement property support
+  report_warning("Property support has not been implemented yet.");
+  return ident;
+}
+
+node_t *parse_namespace_member(void) {
+
+  if (get_token_type() != VISIBILITY_MODIFIER)
+    return NULL;
+
+  node_t *visibility_mod = create_curtoken_node();
+  do {
+    next_token();
+    if (get_token_type() != MODIFIER)
+      break;
+    append_next(visibility_mod, create_curtoken_node());
+  } while (true);
+
+  if (get_token_type() != CREATION)
+    report_error(EXPECTED_CREATION);
+
+  node_t *p = NULL;
+  switch (get_token_detail()) {
+  case FUNC:
+    p = parse_func();
+    break;
+  case DELEGATE:
+    p = parse_delegate();
+    break;
+  case STRUCT:
+    p = parse_struct();
+    break;
+  case ENUM:
+    p = parse_enum();
+    break;
+  case TYPEDEF:
+    p = parse_typedef();
+    break;
+  case VAR:
+    p = parse_var();
+    break;
   }
 
-  child = parse_class();
-  if (child != NULL) {
-    append_modifier(child, modifier);
-    return child;
-  }
+  if (p == NULL)
+    report_error(EXPECTED_CREATION);
 
-  // TODO: Execution should never get here unless an invalid token is
-  // present
+  append_modifier(p, visibility_mod);
+  return p;
 }
 
 node_t *parse_namespace(void) {
-  if (get_token_type() == KEYWORD && get_token_detail() == NAMESPACE) {
+  if (get_token_type() == CREATION && get_token_detail() == NAMESPACE) {
     node_t *p = create_curtoken_node();
     // parse namespace name
 
@@ -400,13 +259,14 @@ node_t *parse_namespace(void) {
       if (get_token_type() == BLOCK && *get_token_val() == '}')
         return p;
 
-      node_t *child = parse_typeDeclaration();
+      node_t *child = parse_namespace_member();
       if (child != NULL) {
         append_child(p, child);
         continue;
       }
-      // TODO: Execution should never get here unless an invalid token is
-      // present
+
+      // Execution should never get here unless an invalid token is present
+      report_error(UNEXPECTED_TOKEN);
     }
     return p;
   } else {
@@ -419,6 +279,11 @@ node_t *parse_import(void) {
     node_t *p = create_curtoken_node();
 
     next_token();
+    if (get_token_type() == MODIFIER && get_token_detail() == CONST) {
+      append_modifier(p, create_curtoken_node());
+      next_token();
+    }
+
     node_t *c = parse_name();
     if (c == NULL) {
       // syntax error, expected name
@@ -464,7 +329,8 @@ node_t *parse_global(void) {
     if (get_token_type() == 0 && get_token_error() == END_FILE)
       break;
 
-    // TODO: Execution should never get here unless an invalid token is present
+    // Execution should never get here unless an invalid token is present
+    report_error(UNEXPECTED_TOKEN);
   }
 }
 

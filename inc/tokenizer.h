@@ -39,6 +39,12 @@ bool is_identifier(void);
 
 bool is_keyword(void);
 
+bool is_visibility_mod(void);
+
+bool is_mod(void);
+
+bool is_creation(void);
+
 bool is_builtin_type(void);
 
 bool is_operator(void);
