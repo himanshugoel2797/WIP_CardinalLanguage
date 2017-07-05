@@ -12,6 +12,15 @@ typedef struct node {
   struct node *next;
 } node_t;
 
+typedef enum {
+  MISSING_IDENTIFIER,
+  EXPECTED_OPENING_BRACE,
+  EXPECTED_CLOSING_BRACE,
+  EXPECTED_SEMICOLON,
+} ParseTreeErrors;
+
 node_t *generate_parsetree(void);
+
+void report_error(int code);
 
 #endif

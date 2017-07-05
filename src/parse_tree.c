@@ -5,6 +5,11 @@
 
 static node_t *root;
 
+void report_error(int code) {
+  printf("ERROR: %d\r\n", code);
+  exit(0);
+}
+
 void append_modifier(node_t *parent, node_t *val) {
 
   printf("Append Modifier \"%s\" to \"%s\"\r\n", val->token_val,
@@ -69,13 +74,6 @@ node_t *parse_semicolon(void) {
     return NULL;
 }
 
-node_t *parse_dot(void) {
-  if (get_token_type() == DELIMITER && *get_token_val() == '.') {
-    return create_curtoken_node();
-  } else
-    return NULL;
-}
-
 node_t *parse_name(void) {
   if (get_token_type() == IDENTIFIER) {
     node_t *p = create_curtoken_node();
@@ -84,6 +82,10 @@ node_t *parse_name(void) {
     return NULL;
 }
 
+node_t *parse_variable_member(void) { return NULL; }
+
+node_t *parse_enum_member(void) { return NULL; }
+
 node_t *parse_enum(void) {
   if (get_token_type() == KEYWORD && get_token_detail() == ENUM) {
     node_t *p = create_curtoken_node();
@@ -91,30 +93,15 @@ node_t *parse_enum(void) {
 
     node_t *c = parse_name();
     if (c == NULL) {
-      // TODO: syntax error, missing identifier
+      // syntax error, missing identifier
+      report_error(MISSING_IDENTIFIER);
     }
 
     append_child(p, c);
-    return p;
-  } else
-    return NULL;
-}
-
-node_t *parse_member(void) { return NULL; }
-
-node_t *parse_struct(void) {
-  if (get_token_type() == KEYWORD && get_token_detail() == STRUCT) {
-    node_t *p = create_curtoken_node();
     next_token();
-
-    node_t *c = parse_name();
-    if (c == NULL) {
-      // TODO: syntax error, missing identifier
-    }
-
-    append_child(p, c);
     if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // TODO: syntax error, expected '{'
+      // syntax error, expected '{'
+      report_error(EXPECTED_OPENING_BRACE);
     }
 
     // Add members
@@ -123,7 +110,45 @@ node_t *parse_struct(void) {
 
       next_token();
 
-      c = parse_member();
+      c = parse_enum_member();
+      if (c != NULL) {
+        append_child(p, c);
+        continue;
+      }
+
+      if (get_token_type() == BLOCK && *get_token_val() == '}')
+        return p;
+    }
+    return p;
+  } else
+    return NULL;
+}
+
+node_t *parse_struct(void) {
+  if (get_token_type() == KEYWORD && get_token_detail() == STRUCT) {
+    node_t *p = create_curtoken_node();
+    next_token();
+
+    node_t *c = parse_name();
+    if (c == NULL) {
+      // syntax error, missing identifier
+      report_error(MISSING_IDENTIFIER);
+    }
+
+    append_child(p, c);
+    next_token();
+    if (get_token_type() != BLOCK && *get_token_val() != '{') {
+      // syntax error, expected '{'
+      report_error(EXPECTED_OPENING_BRACE);
+    }
+
+    // Add members
+    while (true) {
+      node_t *c = NULL;
+
+      next_token();
+
+      c = parse_variable_member();
       if (c != NULL) {
         append_child(p, c);
         continue;
@@ -145,12 +170,15 @@ node_t *parse_class(void) {
 
     node_t *c = parse_name();
     if (c == NULL) {
-      // TODO: syntax error, missing identifier
+      // syntax error, missing identifier
+      report_error(MISSING_IDENTIFIER);
     }
-    append_child(p, c);
 
+    append_child(p, c);
+    next_token();
     if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // TODO: syntax error, expected '{'
+      // syntax error, expected '{'
+      report_error(EXPECTED_OPENING_BRACE);
     }
 
     // Add members
@@ -159,7 +187,7 @@ node_t *parse_class(void) {
 
       next_token();
 
-      c = parse_member();
+      c = parse_variable_member();
       if (c != NULL) {
         append_child(p, c);
         continue;
@@ -223,18 +251,20 @@ node_t *parse_typeDeclaration(void) {
 node_t *parse_namespace(void) {
   if (get_token_type() == KEYWORD && get_token_detail() == NAMESPACE) {
     node_t *p = create_curtoken_node();
-    // TODO: parse namespace name
+    // parse namespace name
 
     next_token();
     node_t *c = parse_name();
     if (c == NULL) {
-      // TODO: syntax error, missing identifier
+      // syntax error, missing identifier
+      report_error(MISSING_IDENTIFIER);
     }
     append_child(p, c);
 
     next_token();
     if (get_token_type() != BLOCK && *get_token_val() != '{') {
-      // TODO: syntax error, expected '{'
+      // syntax error, expected '{'
+      report_error(EXPECTED_OPENING_BRACE);
     }
 
     // parse namespace children
@@ -262,43 +292,22 @@ node_t *parse_import(void) {
   if (get_token_type() == KEYWORD && get_token_detail() == IMPORT) {
     node_t *p = create_curtoken_node();
 
-    bool was_name = false;
-    while (true) {
-      node_t *c;
+    next_token();
+    node_t *c = parse_name();
+    if (c == NULL) {
+      // syntax error, expected name
+      report_error(MISSING_IDENTIFIER);
+    }
+    append_child(p, c);
 
-      next_token();
-
-      c = parse_name();
-      if (c != NULL) {
-        if (was_name) {
-          // TODO: syntax error, invalid name
-        }
-
-        append_child(p, c);
-        was_name = true;
-        continue;
-      }
-
-      c = parse_dot();
-      if (c != NULL) {
-        if (!was_name) {
-          // TODO: syntax error, invalid name
-        }
-
-        append_child(p, c);
-        was_name = false;
-        continue;
-      }
-
-      c = parse_semicolon();
-      if (c != NULL) {
-        free(c);
-        return p;
-      }
-
-      // TODO: syntax error, expected identifier
+    next_token();
+    c = parse_semicolon();
+    if (c == NULL) {
+      // syntax error, expected semicolon
+      report_error(EXPECTED_SEMICOLON);
     }
 
+    free(c);
     return p;
   } else {
     return NULL;
@@ -326,7 +335,7 @@ node_t *parse_global(void) {
       continue;
     }
 
-    if (get_token_type() == 0)
+    if (get_token_type() == 0 && get_token_error() == END_FILE)
       break;
 
     // TODO: Execution should never get here unless an invalid token is present
@@ -335,15 +344,5 @@ node_t *parse_global(void) {
 
 node_t *generate_parsetree(void) {
   root = parse_global();
-  /*
-    while (true) {
-      int type = next_token();
-      printf("%s : %d\r\n", get_token_val(), type);
-
-      if (get_token_error() != NONE) {
-        printf("ERROR: %d\r\n", get_token_error());
-        break;
-      }
-    }*/
   return root;
 }

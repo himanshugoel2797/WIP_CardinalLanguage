@@ -12,7 +12,7 @@ static const char *floatsVals = "0123456789.";
 static const char *binaryVals = "01";
 static const char *hexVals = "0123456789abcdefABCDEF";
 static const char *identVals =
-    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ[]";
+    "_$1234567890abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ[].";
 
 static int tokenizer_data_len;
 static char *tokenizer_data = NULL;

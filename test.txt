@@ -1,0 +1,17 @@
+Create Node: (null)
+Create Node: import
+Create Node: System.Collections.Generic
+Append Child "System.Collections.Generic" to "import"
+Create Node: ;
+Append Child "import" to ""
+Create Node: namespace
+Create Node: TestApp
+Append Child "TestApp" to "namespace"
+Create Node: public
+Create Node: class
+Create Node: TestAppClass
+Append Child "TestAppClass" to "class"
+Append Modifier "public" to "class"
+Append Child "class" to "namespace"
+Create Node: public
+Append Child "namespace" to ""

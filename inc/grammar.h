@@ -52,7 +52,6 @@ typedef enum {
   SUB,
   MULT,
   DIV,
-  DOT,
   DEREF,
 } Operators;
 
@@ -118,6 +117,8 @@ typedef enum {
   VAL_AT,
   NULL_VAL,
   IMPORT,
+  TRUE_VAL,
+  FALSE_VAL,
 } Keywords;
 
 static char *keyword_strs[] = {
@@ -128,7 +129,8 @@ static char *keyword_strs[] = {
     "internal",  "this",      "implicit", "operator", "explicit", "ref",
     "in",        "out",       "lock",     "try",      "catch",    "finally",
     "new",       "get",       "set",      "params",   "delegate", "abstract",
-    "addrof",    "ptr",       "val_at",   "null",     "import",   NULL};
+    "addrof",    "ptr",       "val_at",   "null",     "import",   "true",
+    "false",     NULL};
 
 static char *builtin_type_strs[] = {"int",   "uint",   "long",  "ulong",
                                     "byte",  "sbyte",  "short", "ushort",
@@ -136,6 +138,6 @@ static char *builtin_type_strs[] = {"int",   "uint",   "long",  "ulong",
 
 static char *operator_strs[] = {">", "<", ">=", "<=", "==", "!=", "!",  "&",
                                 "|", "^", "||", "&&", "<<", ">>", "++", "--",
-                                "+", "-", "*",  "/",  ".",  "->", NULL};
+                                "+", "-", "*",  "/",  "->", NULL};
 
 #endif
