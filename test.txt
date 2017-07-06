@@ -68,6 +68,18 @@ Create Node: public
 Create Node: func
 Create Node: X
 Append Modifier "func" to "X"
+Create Node: (
 Create Node: a
-Append Child "a" to "X"
-ERROR: 1
+Create Node: int
+Append Modifier "int" to "a"
+Append Child "a" to "("
+Create Node: b
+Create Node: float
+Append Modifier "float" to "b"
+Append Child "b" to "("
+Append Child "(" to "X"
+Create Node: bool
+Append Child "bool" to "X"
+Append Modifier "public" to "X"
+Append Child "X" to "namespace"
+ERROR: 4

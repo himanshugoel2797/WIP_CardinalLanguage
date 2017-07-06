@@ -140,6 +140,53 @@ node_t *parse_params(void) {
   if (*get_token_val() != '(')
     return NULL;
 
+  node_t *n = create_curtoken_node();
+  n->extra_tags = PARAMETERS;
+
+  bool expectedComma = false;
+  bool expectedLast = false;
+
+  while (true) {
+    next_token();
+
+    if (get_token_type() == IDENTIFIER && !expectedComma && !expectedLast) {
+      node_t *p = create_curtoken_node();
+
+      next_token();
+
+      if (get_token_type() == KEYWORD && get_token_detail() == PARAMS) {
+        node_t *varParam = create_curtoken_node();
+        append_modifier(p, varParam);
+        next_token();
+        expectedLast = true;
+      }
+
+      if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
+        report_error(EXPECTED_TYPE);
+
+      node_t *t = create_curtoken_node();
+      append_modifier(p, t);
+      append_child(n, p);
+      expectedComma = true;
+      continue;
+    }
+
+    if (get_token_type() == DELIMITER && *get_token_val() == ')')
+      return n;
+
+    if (expectedLast)
+      report_error(VARARG_FINAL);
+
+    if (expectedComma) {
+      if (get_token_type() == DELIMITER && *get_token_val() == ',') {
+        expectedComma = false;
+        continue;
+      }
+
+      report_error(EXPECTED_COMMA);
+    }
+  }
+
   return NULL;
 }
 

@@ -3,9 +3,7 @@
 
 #include "grammar.h"
 
-typedef enum {
-  RETURN_TYPE,
-} ExtraTags;
+typedef enum { RETURN_TYPE, PARAMETERS, VARPARAMS } ExtraTags;
 
 typedef struct node {
   int token_type;
@@ -27,6 +25,7 @@ typedef enum {
   EXPECTED_TYPE,
   EXPECTED_IDENTIFIER,
   EXPECTED_COMMA,
+  VARARG_FINAL,
 } ParseTreeErrors;
 
 node_t *generate_parsetree(void);
