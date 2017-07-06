@@ -119,6 +119,7 @@ typedef enum {
   TRUE_VAL,
   FALSE_VAL,
   VALUE,
+  FOR,
 } Keywords;
 
 static char *visibility_modifier_strs[] = {"public", "private", "internal",
@@ -133,7 +134,7 @@ static char *keyword_strs[] = {
     "if",       "else",   "while",  "do",     "case",   "break",
     "continue", "return", "sizeof", "nameof", "switch", "get",
     "set",      "params", "addrof", "val_at", "null",   "import",
-    "true",     "false",  "value",  NULL};
+    "true",     "false",  "value",  "for",    NULL};
 
 static char *builtin_type_strs[] = {
     "int",    "uint",  "long",   "ulong", "byte", "sbyte", "short",

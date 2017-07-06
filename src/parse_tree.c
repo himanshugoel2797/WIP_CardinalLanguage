@@ -125,9 +125,87 @@ node_t *parse_name(void) {
     return NULL;
 }
 
+node_t *parse_expression(void) { return NULL; }
+
+node_t *parse_assignment(void) { return NULL; }
+
+node_t *parse_declaration(void) { return NULL; }
+
+node_t *parse_if(void) { return NULL; }
+
+node_t *parse_for(void) { return NULL; }
+
+node_t *parse_while(void) { return NULL; }
+
+node_t *parse_do(void) { return NULL; }
+
+node_t *parse_switch(void) { return NULL; }
+
+node_t *parse_return(void) { return NULL; }
+
 node_t *parse_code(void) {
   if (get_token_type() != BLOCK && *get_token_val() != '{')
     report_error(EXPECTED_OPENING_BRACE);
+
+  node_t *p = create_curtoken_node();
+
+  while (true) {
+    next_token();
+    node_t *c = NULL;
+
+    c = parse_declaration();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_assignment();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_if();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_for();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_while();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_do();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_switch();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    c = parse_return();
+    if (c != NULL) {
+      append_child(p, c);
+      continue;
+    }
+
+    if(get_token_type() == BLOCK && *get_token_val() == '}')
+      return p;
+
+    report_error(UNEXPECTED_TOKEN);
+  }
 
   return NULL;
 }
