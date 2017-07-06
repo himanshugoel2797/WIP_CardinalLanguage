@@ -26,6 +26,7 @@ typedef enum {
   EXPECTED_IDENTIFIER,
   EXPECTED_COMMA,
   VARARG_FINAL,
+  EXPECTED_PARAMETERS,
 } ParseTreeErrors;
 
 node_t *generate_parsetree(void);

@@ -65,6 +65,27 @@ Append Child "MemberB" to "TestAppEnum"
 Append Modifier "private" to "TestAppEnum"
 Append Child "TestAppEnum" to "namespace"
 Create Node: public
+Create Node: delegate
+Create Node: Action
+Append Modifier "delegate" to "Action"
+Create Node: (
+Create Node: a
+Create Node: int
+Append Modifier "int" to "a"
+Append Child "a" to "("
+Create Node: b
+Create Node: params
+Append Modifier "params" to "b"
+Create Node: float[]
+Append Modifier "float[]" to "b"
+Append Child "b" to "("
+Append Child "(" to "Action"
+Create Node: bool
+Append Child "bool" to "Action"
+Create Node: ;
+Append Modifier "public" to "Action"
+Append Child "Action" to "namespace"
+Create Node: public
 Create Node: func
 Create Node: X
 Append Modifier "func" to "X"
@@ -74,8 +95,10 @@ Create Node: int
 Append Modifier "int" to "a"
 Append Child "a" to "("
 Create Node: b
-Create Node: float
-Append Modifier "float" to "b"
+Create Node: params
+Append Modifier "params" to "b"
+Create Node: float[]
+Append Modifier "float[]" to "b"
 Append Child "b" to "("
 Append Child "(" to "X"
 Create Node: bool

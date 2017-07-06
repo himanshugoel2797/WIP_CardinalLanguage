@@ -209,8 +209,10 @@ node_t *parse_func(void) {
   next_token();
   node_t *params = parse_params();
 
-  if (params != NULL)
-    append_child(ident, params);
+  if (params == NULL)
+    report_error(EXPECTED_PARAMETERS);
+
+  append_child(ident, params);
 
   next_token();
   if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
@@ -229,8 +231,46 @@ node_t *parse_func(void) {
 }
 
 node_t *parse_delegate(void) {
-  if (get_token_type() != CREATION | get_token_detail() != DELEGATE)
+  if (get_token_type() != CREATION)
     return NULL;
+
+  if (get_token_detail() != DELEGATE)
+    return NULL;
+
+  node_t *isDelegate = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *ident = create_curtoken_node();
+  append_modifier(ident, isDelegate);
+
+  next_token();
+  node_t *params = parse_params();
+
+  if (params == NULL)
+    report_error(EXPECTED_PARAMETERS);
+
+  append_child(ident, params);
+
+  next_token();
+  if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *retType = create_curtoken_node();
+  retType->extra_tags = RETURN_TYPE;
+  append_child(ident, retType);
+
+  next_token();
+  node_t *semi = parse_semicolon();
+  if (semi != NULL) {
+    free(semi);
+    return ident;
+  }
+
+  report_error(EXPECTED_SEMICOLON);
+  return NULL;
 }
 
 node_t *parse_struct(void) {
