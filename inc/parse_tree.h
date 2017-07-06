@@ -3,9 +3,14 @@
 
 #include "grammar.h"
 
+typedef enum {
+  RETURN_TYPE,
+} ExtraTags;
+
 typedef struct node {
   int token_type;
   int token_detail;
+  int extra_tags;
   char token_val[TKN_MAX_LEN];
   struct node *modifiers;
   struct node *children;
@@ -26,5 +31,7 @@ typedef enum {
 node_t *generate_parsetree(void);
 
 void report_error(int code);
+
+node_t *parse_namespace_member(void);
 
 #endif

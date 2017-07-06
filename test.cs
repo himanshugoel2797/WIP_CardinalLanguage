@@ -1,7 +1,7 @@
 import System.Collections.Generic;
 
 namespace TestApp {
-    internal var bool isValid { get;set;}
+    internal var bool isValid;// { get;set;}
 
     private struct TestAppStruct {
         public var int A;

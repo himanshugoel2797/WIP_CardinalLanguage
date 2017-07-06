@@ -69,6 +69,7 @@ node_t *create_node(int type, int detail, const char *val) {
 
   tmp->token_type = type;
   tmp->token_detail = detail;
+  tmp->extra_tags = 0;
   if (val != NULL)
     strcpy(tmp->token_val, val);
   tmp->next = NULL;
@@ -124,16 +125,57 @@ node_t *parse_name(void) {
     return NULL;
 }
 
-node_t *parse_identifier(void) {
-  if (get_token_type() == IDENTIFIER) {
-    return create_curtoken_node();
-  }
+node_t *parse_code(void) {
+  if (get_token_type() != BLOCK && *get_token_val() != '{')
+    report_error(EXPECTED_OPENING_BRACE);
+
   return NULL;
 }
 
-node_t *parse_func(void) {
-  if (get_token_type() != CREATION | get_token_detail() != FUNC)
+node_t *parse_params(void) {
+
+  if (get_token_type() != DELIMITER)
     return NULL;
+
+  if (*get_token_val() != '(')
+    return NULL;
+}
+
+node_t *parse_func(void) {
+  if (get_token_type() != CREATION)
+    return NULL;
+
+  if (get_token_detail() != FUNC)
+    return NULL;
+
+  node_t *isFunc = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *ident = create_curtoken_node();
+  append_modifier(ident, isFunc);
+
+  next_token();
+  node_t *params = parse_params();
+
+  if (params != NULL)
+    append_child(ident, params);
+
+  next_token();
+  if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *retType = create_curtoken_node();
+  retType->extra_tags = RETURN_TYPE;
+  append_child(ident, retType);
+
+  next_token();
+  node_t *code = parse_code();
+  append_child(ident, code);
+
+  return ident;
 }
 
 node_t *parse_delegate(void) {
@@ -142,8 +184,42 @@ node_t *parse_delegate(void) {
 }
 
 node_t *parse_struct(void) {
-  if (get_token_type() != CREATION | get_token_detail() != STRUCT)
+  if (get_token_type() != CREATION)
     return NULL;
+
+  if (get_token_detail() != STRUCT)
+    return NULL;
+
+  node_t *isStruct = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *ident = create_curtoken_node();
+  append_modifier(ident, isStruct);
+
+  next_token();
+  if (get_token_type() != BLOCK)
+    report_error(EXPECTED_OPENING_BRACE);
+
+  if (*get_token_val() != '{')
+    report_error(EXPECTED_OPENING_BRACE);
+
+  while (true) {
+    next_token();
+
+    node_t *member = parse_namespace_member();
+    if (member != NULL) {
+      append_child(ident, member);
+      continue;
+    }
+
+    if (get_token_type() == BLOCK && *get_token_val() == '}')
+      return ident;
+
+    report_error(UNEXPECTED_TOKEN);
+  }
 }
 
 node_t *parse_enum(void) {
@@ -157,7 +233,10 @@ node_t *parse_typedef(void) {
 }
 
 node_t *parse_var(void) {
-  if (get_token_type() != CREATION | get_token_detail() != VAR)
+  if (get_token_type() != CREATION)
+    return NULL;
+
+  if (get_token_detail() != VAR)
     return NULL;
 
   node_t *isVar = create_curtoken_node();
@@ -247,10 +326,12 @@ node_t *parse_namespace(void) {
     append_child(p, c);
 
     next_token();
-    if (get_token_type() != BLOCK && *get_token_val() != '{') {
+    if (get_token_type() != BLOCK)
       // syntax error, expected '{'
       report_error(EXPECTED_OPENING_BRACE);
-    }
+
+    if (*get_token_val() != '{')
+      report_error(EXPECTED_OPENING_BRACE);
 
     // parse namespace children
     while (true) {
