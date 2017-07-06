@@ -86,18 +86,20 @@ node_t *create_curtoken_node(void) {
   return create_node(get_token_type(), get_token_detail(), get_token_val());
 }
 
-node_t *parse_semicolon(void) {
-  if (get_token_type() == DELIMITER && *get_token_val() == ';') {
-    return create_curtoken_node();
-  } else
-    return NULL;
+bool parse_starting_brace(void) {
+  return (get_token_type() == BLOCK && *get_token_val() == '{');
 }
 
-node_t *parse_dot(void) {
-  if (get_token_type() == OPERATOR && *get_token_val() == '.') {
-    return create_curtoken_node();
-  } else
-    return NULL;
+bool parse_ending_brace(void) {
+  return (get_token_type() == BLOCK && *get_token_val() == '}');
+}
+
+bool parse_semicolon(void) {
+  return (get_token_type() == DELIMITER && *get_token_val() == ';');
+}
+
+bool parse_dot(void) {
+  return (get_token_type() == OPERATOR && *get_token_val() == '.');
 }
 
 node_t *parse_name(void) {
@@ -105,7 +107,7 @@ node_t *parse_name(void) {
     node_t *p = create_curtoken_node();
 
     peek_token();
-    node_t *c = parse_dot();
+    node_t *c = parse_dot() ? create_curtoken_node() : NULL;
 
     if (c == NULL) {
       revert_peek_token();
@@ -127,9 +129,44 @@ node_t *parse_name(void) {
 
 node_t *parse_expression(void) { return NULL; }
 
-node_t *parse_assignment(void) { return NULL; }
+node_t *parse_declaration(void) {
+  if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)
+    return NULL;
 
-node_t *parse_declaration(void) { return NULL; }
+  node_t *type = create_curtoken_node();
+  next_token();
+
+  // Assignment statement
+  if (get_token_type() == ASSIGNMENT) {
+    next_token();
+    node_t *expr = parse_expression();
+
+    append_child(type, expr);
+    return type;
+  }
+
+  // Declaration statement
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *varName = create_curtoken_node();
+  append_modifier(varName, type);
+  next_token();
+
+  if (parse_semicolon()) {
+    return varName;
+  }
+
+  if (get_token_type() == ASSIGNMENT) {
+    next_token();
+    node_t *expr = parse_expression();
+
+    append_child(varName, expr);
+    return varName;
+  }
+
+  report_error(UNEXPECTED_TOKEN);
+}
 
 node_t *parse_if(void) { return NULL; }
 
@@ -139,7 +176,28 @@ node_t *parse_while(void) { return NULL; }
 
 node_t *parse_do(void) { return NULL; }
 
-node_t *parse_switch(void) { return NULL; }
+node_t *parse_case(void) { return NULL; }
+
+node_t *parse_switch(void) {
+
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != SWITCH)
+    return NULL;
+
+  node_t *r = create_curtoken_node();
+  next_token();
+
+  node_t *expr = parse_expression();
+  if (expr == NULL)
+    report_error(EXPECTED_EXPRESSION);
+
+  append_child(r, expr);
+  next_token();
+
+  return r;
+}
 
 node_t *parse_return(void) {
 
@@ -151,9 +209,7 @@ node_t *parse_return(void) {
 
   node_t *r = create_curtoken_node();
   next_token();
-  node_t *semi = parse_semicolon();
-  if (semi != NULL) {
-    free(semi);
+  if (parse_semicolon()) {
     return r;
   }
 
@@ -173,12 +229,6 @@ node_t *parse_code(void) {
     node_t *c = NULL;
 
     c = parse_declaration();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_assignment();
     if (c != NULL) {
       append_child(p, c);
       continue;
@@ -360,9 +410,7 @@ node_t *parse_delegate(void) {
   append_child(ident, retType);
 
   next_token();
-  node_t *semi = parse_semicolon();
-  if (semi != NULL) {
-    free(semi);
+  if (parse_semicolon()) {
     return ident;
   }
 
@@ -498,9 +546,7 @@ node_t *parse_var(void) {
   append_modifier(ident, type);
 
   next_token();
-  node_t *semi = parse_semicolon();
-  if (semi != NULL) {
-    free(semi);
+  if (parse_semicolon()) {
     return ident; // Just a variable declaration.
   }
 
@@ -612,14 +658,12 @@ node_t *parse_import(void) {
     append_child(p, c);
 
     next_token();
-    c = parse_semicolon();
-    if (c == NULL) {
-      // syntax error, expected semicolon
-      report_error(EXPECTED_SEMICOLON);
+    if (parse_semicolon()) {
+      return p;
     }
 
-    free(c);
-    return p;
+    // syntax error, expected semicolon
+    report_error(EXPECTED_SEMICOLON);
   } else {
     return NULL;
   }
