@@ -103,6 +103,11 @@ Append Child "b" to "("
 Append Child "(" to "X"
 Create Node: bool
 Append Child "bool" to "X"
+Create Node: {
+Create Node: return
+Create Node: ;
+Append Child "return" to "{"
+Append Child "{" to "X"
 Append Modifier "public" to "X"
 Append Child "X" to "namespace"
-ERROR: 4
+Append Child "namespace" to ""

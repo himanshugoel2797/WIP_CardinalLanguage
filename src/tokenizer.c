@@ -7,6 +7,7 @@
 #include "tokenizer.h"
 
 static const char *whitespace = " \t\r\n\v\f";
+static const char *keyword_terms = " \t\r\n\v\f({:;";
 static const char *integersVals = "0123456789";
 static const char *floatsVals = "0123456789.";
 static const char *binaryVals = "01";
@@ -59,8 +60,19 @@ bool check_whitespace(char c) {
   if (c == 0)
     return true;
 
-  for (int i = 0; i < 6; i++)
+  for (int i = 0; i < strlen(whitespace); i++)
     if (c == whitespace[i])
+      return true;
+  return false;
+}
+
+bool check_keyword_char(char c) {
+
+  if (c == 0)
+    return true;
+
+  for (int i = 0; i < strlen(keyword_terms); i++)
+    if (c == keyword_terms[i])
       return true;
   return false;
 }
@@ -444,7 +456,7 @@ bool is_keyword(void) {
 
   while (*key != NULL) {
     if (strncmp(*key, token_pos, strlen(*key)) == 0 &&
-        check_whitespace(*(token_pos + strlen(*key)))) {
+        check_keyword_char(*(token_pos + strlen(*key)))) {
       strcpy(token_val, *key);
       token_detail = i;
       token_pos += strlen(*key);

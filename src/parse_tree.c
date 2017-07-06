@@ -141,7 +141,26 @@ node_t *parse_do(void) { return NULL; }
 
 node_t *parse_switch(void) { return NULL; }
 
-node_t *parse_return(void) { return NULL; }
+node_t *parse_return(void) {
+
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != RETURN)
+    return NULL;
+
+  node_t *r = create_curtoken_node();
+  next_token();
+  node_t *semi = parse_semicolon();
+  if (semi != NULL) {
+    free(semi);
+    return r;
+  }
+
+  node_t *expr = parse_expression();
+  append_child(r, expr);
+  return r;
+}
 
 node_t *parse_code(void) {
   if (get_token_type() != BLOCK && *get_token_val() != '{')
@@ -201,7 +220,7 @@ node_t *parse_code(void) {
       continue;
     }
 
-    if(get_token_type() == BLOCK && *get_token_val() == '}')
+    if (get_token_type() == BLOCK && *get_token_val() == '}')
       return p;
 
     report_error(UNEXPECTED_TOKEN);

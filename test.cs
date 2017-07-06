@@ -14,9 +14,9 @@ namespace TestApp {
     }
 
     public delegate Action(a int, b params float[]) bool;
-    
+
     public func X(a int, b params float[]) bool {
-        return a >= b;
+        return;
     }
 
 }
