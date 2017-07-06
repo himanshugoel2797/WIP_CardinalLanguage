@@ -94,7 +94,6 @@ typedef enum {
   DELEGATE,
   STRUCT,
   ENUM,
-  TYPEDEF,
   VAR,
 } Creations;
 
@@ -127,8 +126,8 @@ static char *visibility_modifier_strs[] = {"public", "private", "internal",
 
 static char *modifier_strs[] = {"atomic", "ptr", "volatile", "const", NULL};
 
-static char *creation_strs[] = {"namespace", "func",    "delegate", "struct",
-                                "enum",      "typedef", "var",      NULL};
+static char *creation_strs[] = {"namespace", "func", "delegate", "struct",
+                                "enum",      "var",  NULL};
 
 static char *keyword_strs[] = {
     "if",       "else",   "while",  "do",     "case",   "break",

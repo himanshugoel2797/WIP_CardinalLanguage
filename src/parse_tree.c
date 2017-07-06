@@ -139,6 +139,8 @@ node_t *parse_params(void) {
 
   if (*get_token_val() != '(')
     return NULL;
+
+  return NULL;
 }
 
 node_t *parse_func(void) {
@@ -173,7 +175,8 @@ node_t *parse_func(void) {
 
   next_token();
   node_t *code = parse_code();
-  append_child(ident, code);
+  if (code != NULL)
+    append_child(ident, code);
 
   return ident;
 }
@@ -222,14 +225,69 @@ node_t *parse_struct(void) {
   }
 }
 
+node_t *parse_enum_member(void) {
+  if (get_token_type() != IDENTIFIER)
+    return NULL;
+
+  node_t *ident = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() == DELIMITER && *get_token_val() == ',')
+    return ident;
+
+  if (get_token_type() != ASSIGNMENT)
+    report_error(UNEXPECTED_TOKEN);
+
+  next_token();
+  if (get_token_type() != INTEGER)
+    report_error(UNEXPECTED_TOKEN);
+
+  node_t *val = create_curtoken_node();
+  append_child(ident, val);
+
+  next_token();
+  if (get_token_type() == DELIMITER && *get_token_val() == ',')
+    return ident;
+
+  report_error(EXPECTED_COMMA);
+  return NULL;
+}
+
 node_t *parse_enum(void) {
   if (get_token_type() != CREATION | get_token_detail() != ENUM)
     return NULL;
-}
 
-node_t *parse_typedef(void) {
-  if (get_token_type() != CREATION | get_token_detail() != TYPEDEF)
-    return NULL;
+  node_t *isEnum = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER)
+    report_error(EXPECTED_IDENTIFIER);
+
+  node_t *ident = create_curtoken_node();
+  append_modifier(ident, isEnum);
+
+  next_token();
+  if (get_token_type() != BLOCK)
+    report_error(EXPECTED_OPENING_BRACE);
+
+  if (*get_token_val() != '{')
+    report_error(EXPECTED_OPENING_BRACE);
+
+  while (true) {
+    next_token();
+    node_t *member = parse_enum_member();
+    if (member != NULL) {
+      append_child(ident, member);
+      continue;
+    }
+
+    if (get_token_type() == BLOCK && *get_token_val() == '}')
+      return ident;
+
+    report_error(UNEXPECTED_TOKEN);
+  }
+
+  return NULL;
 }
 
 node_t *parse_var(void) {
@@ -297,9 +355,6 @@ node_t *parse_namespace_member(void) {
   case ENUM:
     p = parse_enum();
     break;
-  case TYPEDEF:
-    p = parse_typedef();
-    break;
   case VAR:
     p = parse_var();
     break;
@@ -337,14 +392,14 @@ node_t *parse_namespace(void) {
     while (true) {
       next_token();
 
-      if (get_token_type() == BLOCK && *get_token_val() == '}')
-        return p;
-
       node_t *child = parse_namespace_member();
       if (child != NULL) {
         append_child(p, child);
         continue;
       }
+
+      if (get_token_type() == BLOCK && *get_token_val() == '}')
+        return p;
 
       // Execution should never get here unless an invalid token is present
       report_error(UNEXPECTED_TOKEN);

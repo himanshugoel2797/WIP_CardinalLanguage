@@ -8,12 +8,12 @@ namespace TestApp {
         public ptr var int B;
     }
 
-    public func X(a int, b float) bool {
-        return a >= b;
-    }
-
     private enum TestAppEnum {
         MemberA = 0,
         MemberB = 5,
+    }
+
+    public func X(a int, b float) bool {
+        return a >= b;
     }
 }

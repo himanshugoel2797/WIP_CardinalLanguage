@@ -50,6 +50,20 @@ Append Modifier "public" to "B"
 Append Child "B" to "TestAppStruct"
 Append Modifier "private" to "TestAppStruct"
 Append Child "TestAppStruct" to "namespace"
+Create Node: private
+Create Node: enum
+Create Node: TestAppEnum
+Append Modifier "enum" to "TestAppEnum"
+Create Node: MemberA
+Create Node: 0
+Append Child "0" to "MemberA"
+Append Child "MemberA" to "TestAppEnum"
+Create Node: MemberB
+Create Node: 5
+Append Child "5" to "MemberB"
+Append Child "MemberB" to "TestAppEnum"
+Append Modifier "private" to "TestAppEnum"
+Append Child "TestAppEnum" to "namespace"
 Create Node: public
 Create Node: func
 Create Node: X
