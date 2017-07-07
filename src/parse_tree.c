@@ -193,16 +193,22 @@ node_t *parse_mult(void) {
     return left;
   }
 
-  if (get_token_detail() == MULT | get_token_detail() == DIV) {
+  if (get_token_detail() != MULT && get_token_detail() != DIV) {
+    revert_peek_token();
+    return left;
+  }
+
+  while (get_token_type() == OPERATOR &&
+         (get_token_detail() == MULT | get_token_detail() == DIV)) {
     apply_peek_token();
     node_t *op = create_curtoken_node();
     next_token();
     append_modifier(op, left);
     append_child(op, parse_func_expr());
-    return op;
+    left = op;
+    peek_token();
   }
 
-  revert_peek_token();
   return left;
 }
 
@@ -215,16 +221,22 @@ node_t *parse_add(void) {
     return left;
   }
 
-  if (get_token_detail() == ADD | get_token_detail() == SUB) {
+  if (get_token_detail() != ADD && get_token_detail() != SUB) {
+    revert_peek_token();
+    return left;
+  }
+
+  while (get_token_type() == OPERATOR &&
+         (get_token_detail() == ADD | get_token_detail() == SUB)) {
     apply_peek_token();
     node_t *op = create_curtoken_node();
     next_token();
     append_modifier(op, left);
     append_child(op, parse_mult());
-    return op;
+    left = op;
+    peek_token();
   }
 
-  revert_peek_token();
   return left;
 }
 

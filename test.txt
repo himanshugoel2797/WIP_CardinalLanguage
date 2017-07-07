@@ -103,18 +103,18 @@ Create Node: int
 Create Node: c
 Append Modifier "int" to "c"
 Create Node: a
+Create Node: +
+Append Modifier "a" to "+"
+Create Node: 35
+Append Child "35" to "+"
+Create Node: +
+Append Modifier "+" to "+"
+Create Node: 50
 Create Node: *
-Append Modifier "a" to "*"
-Create Node: 50
-Append Child "50" to "*"
-Create Node: +
-Append Modifier "*" to "+"
-Create Node: 50
-Create Node: +
-Append Modifier "50" to "+"
-Create Node: 30
-Append Child "30" to "+"
-Append Child "+" to "+"
+Append Modifier "50" to "*"
+Create Node: 40
+Append Child "40" to "*"
+Append Child "*" to "+"
 Append Child "+" to "c"
 Append Child "c" to "{"
 ERROR: 4
