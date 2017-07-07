@@ -16,6 +16,19 @@ namespace TestApp {
     public delegate Action(a int, b params float[]) bool;
 
     public func X(a int, b params float[]) bool {
+
+        switch {
+            case A:
+
+            break;
+            case 0x0:
+
+            break;
+            default:
+
+            break;
+        }
+
         return;
     }
 

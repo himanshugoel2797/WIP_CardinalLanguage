@@ -94,6 +94,14 @@ bool parse_ending_brace(void) {
   return (get_token_type() == BLOCK && *get_token_val() == '}');
 }
 
+bool parse_starting_paren(void) {
+  return (get_token_type() == DELIMITER && *get_token_val() == '(');
+}
+
+bool parse_ending_paren(void) {
+  return (get_token_type() == DELIMITER && *get_token_val() == ')');
+}
+
 bool parse_semicolon(void) {
   return (get_token_type() == DELIMITER && *get_token_val() == ';');
 }
@@ -168,7 +176,39 @@ node_t *parse_declaration(void) {
   report_error(UNEXPECTED_TOKEN);
 }
 
-node_t *parse_if(void) { return NULL; }
+node_t *parse_if(void) {
+
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != IF)
+    return NULL;
+
+  node_t *r = create_curtoken_node();
+  next_token();
+
+  node_t *expr = parse_expression();
+  append_child(r, expr);
+
+  next_token();
+  if (!parse_starting_brace()) {
+    // single line statement
+
+    node_t *line = parse_line_of_code();
+    if (line == NULL)
+      report_error(EXPECTED_CODE);
+
+    append_child(r, line);
+    return r;
+  }
+
+  node_t *code = parse_block_of_code();
+  if (code == NULL)
+    report_error(EXPECTED_CODE);
+
+  append_child(r, code);
+  return r;
+}
 
 node_t *parse_for(void) { return NULL; }
 
@@ -176,7 +216,57 @@ node_t *parse_while(void) { return NULL; }
 
 node_t *parse_do(void) { return NULL; }
 
-node_t *parse_case(void) { return NULL; }
+node_t *parse_case(void) {
+
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != CASE)
+    return NULL;
+
+  node_t *cs = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != IDENTIFIER && get_token_type() != INTEGER &&
+      get_token_type() != HEX && get_token_type() != BINARY)
+    report_error(INVALID_CASE);
+
+  node_t *ident = create_curtoken_node();
+  append_child(cs, ident);
+
+  next_token();
+  if (get_token_type() != DELIMITER)
+    report_error(EXPECTED_COLON);
+
+  return cs;
+}
+
+node_t *parse_break(void) {
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != BREAK)
+    return NULL;
+
+  node_t *brk = create_curtoken_node();
+  return brk;
+}
+
+node_t *parse_default(void) {
+  if (get_token_type() != KEYWORD)
+    return NULL;
+
+  if (get_token_detail() != DEFAULT)
+    return NULL;
+
+  node_t *cs = create_curtoken_node();
+
+  next_token();
+  if (get_token_type() != DELIMITER)
+    report_error(EXPECTED_COLON);
+
+  return cs;
+}
 
 node_t *parse_switch(void) {
 
@@ -195,6 +285,36 @@ node_t *parse_switch(void) {
 
   append_child(r, expr);
   next_token();
+
+  if (!parse_starting_brace())
+    report_error(EXPECTED_OPENING_BRACE);
+
+  while (true) {
+    next_token();
+
+    node_t *caseLbl = parse_case();
+    if (caseLbl != NULL) {
+      append_child(r, caseLbl);
+      continue;
+    }
+
+    node_t *code = parse_line_of_code();
+    if (code != NULL) {
+      append_child(r, code);
+      continue;
+    }
+
+    caseLbl = parse_default();
+    if (caseLbl != NULL) {
+      append_child(r, caseLbl);
+      continue;
+    }
+
+    if (parse_ending_brace())
+      return r;
+
+    report_error(UNEXPECTED_TOKEN);
+  }
 
   return r;
 }
@@ -218,53 +338,70 @@ node_t *parse_return(void) {
   return r;
 }
 
-node_t *parse_code(void) {
-  if (get_token_type() != BLOCK && *get_token_val() != '{')
-    report_error(EXPECTED_OPENING_BRACE);
+node_t *parse_line_of_code(void) {
+  node_t *c = NULL;
+
+  c = parse_declaration();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_if();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_for();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_while();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_do();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_switch();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_return();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_break();
+  if (c != NULL) {
+    return c;
+  }
+
+  c = parse_block_of_code();
+  if (c != NULL) {
+    return c;
+  }
+
+  return NULL;
+}
+
+node_t *parse_block_of_code(void) {
+  if (get_token_type() != BLOCK)
+    return NULL;
+
+  if (*get_token_val() != '{')
+    return NULL;
 
   node_t *p = create_curtoken_node();
 
   while (true) {
     next_token();
-    node_t *c = NULL;
 
-    c = parse_declaration();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_if();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_for();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_while();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_do();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_switch();
-    if (c != NULL) {
-      append_child(p, c);
-      continue;
-    }
-
-    c = parse_return();
+    node_t *c = parse_line_of_code();
     if (c != NULL) {
       append_child(p, c);
       continue;
@@ -370,9 +507,11 @@ node_t *parse_func(void) {
   append_child(ident, retType);
 
   next_token();
-  node_t *code = parse_code();
+  node_t *code = parse_block_of_code();
   if (code != NULL)
     append_child(ident, code);
+  else
+    report_error(EXPECTED_CODE);
 
   return ident;
 }

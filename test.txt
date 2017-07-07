@@ -10,7 +10,6 @@ Create Node: Generic
 Append Child "Generic" to "."
 Append Child "Collections" to "."
 Append Child "System" to "import"
-Create Node: ;
 Append Child "import" to ""
 Create Node: namespace
 Create Node: TestApp
@@ -21,7 +20,6 @@ Create Node: bool
 Create Node: isValid
 Append Modifier "var" to "isValid"
 Append Modifier "bool" to "isValid"
-Create Node: ;
 Append Modifier "internal" to "isValid"
 Append Child "isValid" to "namespace"
 Create Node: private
@@ -34,7 +32,6 @@ Create Node: int
 Create Node: A
 Append Modifier "var" to "A"
 Append Modifier "int" to "A"
-Create Node: ;
 Append Modifier "public" to "A"
 Append Child "A" to "TestAppStruct"
 Create Node: public
@@ -45,7 +42,6 @@ Create Node: int
 Create Node: B
 Append Modifier "var" to "B"
 Append Modifier "int" to "B"
-Create Node: ;
 Append Modifier "public" to "B"
 Append Child "B" to "TestAppStruct"
 Append Modifier "private" to "TestAppStruct"
@@ -82,7 +78,6 @@ Append Child "b" to "("
 Append Child "(" to "Action"
 Create Node: bool
 Append Child "bool" to "Action"
-Create Node: ;
 Append Modifier "public" to "Action"
 Append Child "Action" to "namespace"
 Create Node: public
@@ -104,10 +99,5 @@ Append Child "(" to "X"
 Create Node: bool
 Append Child "bool" to "X"
 Create Node: {
-Create Node: return
-Create Node: ;
-Append Child "return" to "{"
-Append Child "{" to "X"
-Append Modifier "public" to "X"
-Append Child "X" to "namespace"
-Append Child "namespace" to ""
+Create Node: switch
+ERROR: 11

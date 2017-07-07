@@ -28,11 +28,20 @@ typedef enum {
   VARARG_FINAL,
   EXPECTED_PARAMETERS,
   EXPECTED_EXPRESSION,
+  EXPECTED_OPENING_PAREN,
+  EXPECTED_CLOSING_PAREN,
+  EXPECTED_CODE,
+  EXPECTED_COLON,
+  INVALID_CASE,
 } ParseTreeErrors;
 
 node_t *generate_parsetree(void);
 
 void report_error(int code);
+
+node_t *parse_line_of_code(void);
+
+node_t *parse_block_of_code(void);
 
 node_t *parse_namespace_member(void);
 
