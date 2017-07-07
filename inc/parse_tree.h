@@ -10,8 +10,8 @@ typedef struct node {
   int token_detail;
   int extra_tags;
   char token_val[TKN_MAX_LEN];
-  struct node *modifiers;
-  struct node *children;
+  struct node *modifiers; // left
+  struct node *children;  // right
   struct node *next;
 } node_t;
 
@@ -33,6 +33,7 @@ typedef enum {
   EXPECTED_CODE,
   EXPECTED_COLON,
   INVALID_CASE,
+  UNEXPECTED_OPERATOR,
 } ParseTreeErrors;
 
 node_t *generate_parsetree(void);
