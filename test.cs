@@ -17,7 +17,10 @@ namespace TestApp {
 
     public func X(a int, b params float[]) bool {
 
-        switch {
+        int c = a * 50 + (50 + 30);
+
+
+        switch (a == c) {
             case A:
 
             break;

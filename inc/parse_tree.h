@@ -46,4 +46,6 @@ node_t *parse_block_of_code(void);
 
 node_t *parse_namespace_member(void);
 
+node_t *parse_expression(void);
+
 #endif
