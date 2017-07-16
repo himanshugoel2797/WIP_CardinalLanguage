@@ -1,120 +1,120 @@
-Create Node: (null)
-Create Node: import
-Create Node: System
-Create Node: .
-Append Child "." to "System"
-Create Node: Collections
-Create Node: .
-Append Child "." to "Collections"
-Create Node: Generic
-Append Child "Generic" to "."
-Append Child "Collections" to "."
-Append Child "System" to "import"
-Append Child "import" to ""
-Create Node: namespace
-Create Node: TestApp
-Append Child "TestApp" to "namespace"
-Create Node: internal
-Create Node: var
-Create Node: bool
-Create Node: isValid
-Append Modifier "var" to "isValid"
-Append Modifier "bool" to "isValid"
-Append Modifier "internal" to "isValid"
-Append Child "isValid" to "namespace"
-Create Node: private
-Create Node: struct
-Create Node: TestAppStruct
-Append Modifier "struct" to "TestAppStruct"
-Create Node: public
-Create Node: var
-Create Node: int
-Create Node: A
-Append Modifier "var" to "A"
-Append Modifier "int" to "A"
-Append Modifier "public" to "A"
-Append Child "A" to "TestAppStruct"
-Create Node: public
-Create Node: ptr
-Append Next "ptr" to "public"
-Create Node: var
-Create Node: int
-Create Node: B
-Append Modifier "var" to "B"
-Append Modifier "int" to "B"
-Append Modifier "public" to "B"
-Append Child "B" to "TestAppStruct"
-Append Modifier "private" to "TestAppStruct"
-Append Child "TestAppStruct" to "namespace"
-Create Node: private
-Create Node: enum
-Create Node: TestAppEnum
-Append Modifier "enum" to "TestAppEnum"
-Create Node: MemberA
-Create Node: 0
-Append Child "0" to "MemberA"
-Append Child "MemberA" to "TestAppEnum"
-Create Node: MemberB
-Create Node: 5
-Append Child "5" to "MemberB"
-Append Child "MemberB" to "TestAppEnum"
-Append Modifier "private" to "TestAppEnum"
-Append Child "TestAppEnum" to "namespace"
-Create Node: public
-Create Node: delegate
-Create Node: Action
-Append Modifier "delegate" to "Action"
-Create Node: (
-Create Node: a
-Create Node: int
-Append Modifier "int" to "a"
-Append Child "a" to "("
-Create Node: b
-Create Node: params
-Append Modifier "params" to "b"
-Create Node: float[]
-Append Modifier "float[]" to "b"
-Append Child "b" to "("
-Append Child "(" to "Action"
-Create Node: bool
-Append Child "bool" to "Action"
-Append Modifier "public" to "Action"
-Append Child "Action" to "namespace"
-Create Node: public
-Create Node: func
-Create Node: X
-Append Modifier "func" to "X"
-Create Node: (
-Create Node: a
-Create Node: int
-Append Modifier "int" to "a"
-Append Child "a" to "("
-Create Node: b
-Create Node: params
-Append Modifier "params" to "b"
-Create Node: float[]
-Append Modifier "float[]" to "b"
-Append Child "b" to "("
-Append Child "(" to "X"
-Create Node: bool
-Append Child "bool" to "X"
-Create Node: {
-Create Node: int
-Create Node: c
-Append Modifier "int" to "c"
-Create Node: a
-Create Node: +
-Append Modifier "a" to "+"
-Create Node: 35
-Append Child "35" to "+"
-Create Node: +
-Append Modifier "+" to "+"
-Create Node: 50
-Create Node: *
-Append Modifier "50" to "*"
-Create Node: 40
-Append Child "40" to "*"
-Append Child "*" to "+"
-Append Child "+" to "c"
-Append Child "c" to "{"
+Create Node: (null) 1d17280
+Create Node: import 1d17330
+Create Node: System 1d173e0
+Create Node: . 1d17490
+Append Child "." to "System" 1d173e0
+Create Node: Collections 1d17540
+Create Node: . 1d175f0
+Append Child "." to "Collections" 1d17540
+Create Node: Generic 1d176a0
+Append Child "Generic" to "." 1d175f0
+Append Child "Collections" to "." 1d17490
+Append Child "System" to "import" 1d17330
+Append Child "import" to "" 1d17280
+Create Node: namespace 1d17750
+Create Node: TestApp 1d17800
+Append Child "TestApp" to "namespace" 1d17750
+Create Node: internal 1d178b0
+Create Node: var 1d17960
+Create Node: bool 1d17a10
+Create Node: isValid 1d17ac0
+Append Modifier "var" to "isValid" 1d17ac0
+Append Modifier "bool" to "isValid" 1d17ac0
+Append Modifier "internal" to "isValid" 1d17ac0
+Append Child "isValid" to "namespace" 1d17750
+Create Node: private 1d17b70
+Create Node: struct 1d17c20
+Create Node: TestAppStruct 1d17cd0
+Append Modifier "struct" to "TestAppStruct" 1d17cd0
+Create Node: public 1d17d80
+Create Node: var 1d17e30
+Create Node: int 1d17ee0
+Create Node: A 1d17f90
+Append Modifier "var" to "A" 1d17f90
+Append Modifier "int" to "A" 1d17f90
+Append Modifier "public" to "A" 1d17f90
+Append Child "A" to "TestAppStruct" 1d17cd0
+Create Node: public 1d18040
+Create Node: ptr 1d180f0
+Append Next "ptr" to "public" 1d18040
+Create Node: var 1d181a0
+Create Node: int 1d194d0
+Create Node: B 1d19580
+Append Modifier "var" to "B" 1d19580
+Append Modifier "int" to "B" 1d19580
+Append Modifier "public" to "B" 1d19580
+Append Child "B" to "TestAppStruct" 1d17cd0
+Append Modifier "private" to "TestAppStruct" 1d17cd0
+Append Child "TestAppStruct" to "namespace" 1d17750
+Create Node: private 1d19630
+Create Node: enum 1d196e0
+Create Node: TestAppEnum 1d19790
+Append Modifier "enum" to "TestAppEnum" 1d19790
+Create Node: MemberA 1d19840
+Create Node: 0 1d198f0
+Append Child "0" to "MemberA" 1d19840
+Append Child "MemberA" to "TestAppEnum" 1d19790
+Create Node: MemberB 1d199a0
+Create Node: 5 1d19a50
+Append Child "5" to "MemberB" 1d199a0
+Append Child "MemberB" to "TestAppEnum" 1d19790
+Append Modifier "private" to "TestAppEnum" 1d19790
+Append Child "TestAppEnum" to "namespace" 1d17750
+Create Node: public 1d19b00
+Create Node: delegate 1d19bb0
+Create Node: Action 1d19c60
+Append Modifier "delegate" to "Action" 1d19c60
+Create Node: ( 1d19d10
+Create Node: a 1d19dc0
+Create Node: int 1d19e70
+Append Modifier "int" to "a" 1d19dc0
+Append Child "a" to "(" 1d19d10
+Create Node: b 1d19f20
+Create Node: params 1d19fd0
+Append Modifier "params" to "b" 1d19f20
+Create Node: float[] 1d1a080
+Append Modifier "float[]" to "b" 1d19f20
+Append Child "b" to "(" 1d19d10
+Append Child "(" to "Action" 1d19c60
+Create Node: bool 1d1a130
+Append Child "bool" to "Action" 1d19c60
+Append Modifier "public" to "Action" 1d19c60
+Append Child "Action" to "namespace" 1d17750
+Create Node: public 1d1a1e0
+Create Node: func 1d1a290
+Create Node: X 1d1a340
+Append Modifier "func" to "X" 1d1a340
+Create Node: ( 1d1a3f0
+Create Node: a 1d1a4a0
+Create Node: int 1d1a550
+Append Modifier "int" to "a" 1d1a4a0
+Append Child "a" to "(" 1d1a3f0
+Create Node: b 1d1a600
+Create Node: params 1d1a6b0
+Append Modifier "params" to "b" 1d1a600
+Create Node: float[] 1d1a760
+Append Modifier "float[]" to "b" 1d1a600
+Append Child "b" to "(" 1d1a3f0
+Append Child "(" to "X" 1d1a340
+Create Node: bool 1d1a810
+Append Child "bool" to "X" 1d1a340
+Create Node: { 1d1a8c0
+Create Node: int 1d1a970
+Create Node: c 1d1aa20
+Append Modifier "int" to "c" 1d1aa20
+Create Node: 50 1d1aad0
+Create Node: * 1d1ab80
+Append Modifier "50" to "*" 1d1ab80
+Create Node: 40 1d1ac30
+Append Child "40" to "*" 1d1ab80
+Create Node: * 1d1ace0
+Append Modifier "*" to "*" 1d1ace0
+Create Node: 30 1d1ad90
+Append Child "30" to "*" 1d1ace0
+Create Node: * 1d1ae40
+Append Modifier "*" to "*" 1d1ae40
+Create Node: 5 1d1aef0
+Append Child "5" to "*" 1d1ae40
+Append Child "*" to "c" 1d1aa20
+Append Child "c" to "{" 1d1a8c0
 ERROR: 4

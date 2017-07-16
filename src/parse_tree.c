@@ -15,8 +15,8 @@ void report_warning(char *msg) { printf("WARNING: %s\r\n", msg); }
 
 void append_modifier(node_t *parent, node_t *val) {
 
-  printf("Append Modifier \"%s\" to \"%s\"\r\n", val->token_val,
-         parent->token_val);
+  printf("Append Modifier \"%s\" to \"%s\" %llx\r\n", val->token_val,
+         parent->token_val, parent);
   if (parent->modifiers == NULL) {
     parent->modifiers = val;
     return;
@@ -31,8 +31,8 @@ void append_modifier(node_t *parent, node_t *val) {
 
 void append_child(node_t *parent, node_t *val) {
 
-  printf("Append Child \"%s\" to \"%s\"\r\n", val->token_val,
-         parent->token_val);
+  printf("Append Child \"%s\" to \"%s\" %llx\r\n", val->token_val,
+         parent->token_val, parent);
   if (parent->children == NULL) {
     parent->children = val;
     return;
@@ -47,7 +47,8 @@ void append_child(node_t *parent, node_t *val) {
 
 void append_next(node_t *parent, node_t *val) {
 
-  printf("Append Next \"%s\" to \"%s\"\r\n", val->token_val, parent->token_val);
+  printf("Append Next \"%s\" to \"%s\" %llx\r\n", val->token_val,
+         parent->token_val, parent);
   if (parent->next == NULL) {
     parent->next = val;
     return;
@@ -62,8 +63,6 @@ void append_next(node_t *parent, node_t *val) {
 
 node_t *create_node(int type, int detail, const char *val) {
 
-  printf("Create Node: %s\r\n", val);
-
   node_t *tmp = malloc(sizeof(node_t));
   memset(tmp, 0, sizeof(node_t));
 
@@ -75,6 +74,7 @@ node_t *create_node(int type, int detail, const char *val) {
   tmp->next = NULL;
   tmp->children = NULL;
 
+  printf("Create Node: %s %llx\r\n", val, tmp);
   return tmp;
 }
 
@@ -138,7 +138,15 @@ node_t *parse_name(void) {
 node_t *parse_factor(void) {
   if (parse_starting_paren()) {
     next_token();
-    return parse_expression();
+    node_t *expr = parse_expression();
+
+    next_token();
+    if (parse_ending_paren()) {
+      return expr;
+    }
+
+    free(expr);
+    report_error(0xFFFFF);
   }
 
   if (get_token_type() != IDENTIFIER && get_token_type() != INTEGER &&
@@ -186,74 +194,59 @@ node_t *parse_func_expr(void) {
 
 node_t *parse_mult(void) {
   node_t *left = parse_func_expr();
-  peek_token();
+  if (left == NULL)
+    return NULL;
 
-  if (get_token_type() != OPERATOR) {
-    revert_peek_token();
-    return left;
-  }
+  next_token();
 
-  if (get_token_detail() != MULT && get_token_detail() != DIV) {
-    revert_peek_token();
+  if (get_token_type() != OPERATOR)
     return left;
-  }
+
+  if (get_token_detail() != MULT && get_token_detail() != DIV)
+    return left;
 
   while (get_token_type() == OPERATOR &&
          (get_token_detail() == MULT | get_token_detail() == DIV)) {
-    apply_peek_token();
     node_t *op = create_curtoken_node();
     next_token();
     append_modifier(op, left);
     append_child(op, parse_func_expr());
     left = op;
-    peek_token();
+    next_token();
   }
-
   return left;
 }
 
 node_t *parse_add(void) {
   node_t *left = parse_mult();
-  peek_token();
+  if (left == NULL)
+    return NULL;
+
+  next_token();
 
   if (get_token_type() != OPERATOR) {
-    revert_peek_token();
     return left;
   }
 
   if (get_token_detail() != ADD && get_token_detail() != SUB) {
-    revert_peek_token();
     return left;
   }
 
   while (get_token_type() == OPERATOR &&
          (get_token_detail() == ADD | get_token_detail() == SUB)) {
-    apply_peek_token();
     node_t *op = create_curtoken_node();
     next_token();
     append_modifier(op, left);
     append_child(op, parse_mult());
     left = op;
-    peek_token();
+    next_token();
   }
-
   return left;
 }
 
 node_t *parse_subexpression(void) {}
 
-node_t *parse_expression(void) {
-  if (parse_starting_paren()) {
-    next_token();
-    node_t *sub_exp = parse_expression();
-
-    next_token();
-    if (!parse_ending_paren())
-      report_error(0xFFFF);
-    return sub_exp;
-  }
-  return parse_add();
-}
+node_t *parse_expression(void) { return parse_add(); }
 
 node_t *parse_declaration(void) {
   if (get_token_type() != IDENTIFIER && get_token_type() != BUILTIN_TYPE)

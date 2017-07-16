@@ -17,7 +17,7 @@ namespace TestApp {
 
     public func X(a int, b params float[]) bool {
 
-        int c = a + 35 + 50 * 40 + 30 * 5;
+        int c = 50 * 40 * 30 * 5;
 
 
         switch (a == c) {
